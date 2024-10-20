@@ -1,0 +1,22 @@
+﻿@page "/threejs"
+@using Canva.Data
+@using ThreeView
+@inject MapService ThreeView
+
+
+<h3>Three.js State-Based Rendering</h3>
+
+<Canva.Widgets.ToolBar />
+
+<div id="threejs-canvas" style="width: 100%; height: 80vh; background-color:greenyellow"></div>
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ThreeView.initScene();
+        }
+    }
+}

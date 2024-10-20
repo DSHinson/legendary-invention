@@ -1,0 +1,46 @@
+﻿@using Canva.Data
+@using ThreeView.Scene
+@using static ThreeView.Scene.RenderObjectDefinitions
+@inject MapService _mapService
+<div class="row">
+    <button class="btn btn-primary align-top m-2" style="width:140px">Cube</button>
+    <button class="btn btn-primary align-top m-2" style="width:140px">Sphere</button>
+    <button class="btn btn-primary align-top m-2" style="width:140px">Tetrahedrone</button>
+    <button class="btn btn-primary align-top m-2" style="width:140px;"> Clear</button>
+
+    <div class="form-group">
+        <label for="sel1">Select Object:</label>
+            @if (_mapService?._sceneObjects != null)
+            {
+                <select class="form-control" id="sel1"  @onchange="setSelectedObject">
+                    <option selected="true" disabled="disabled">--Select--</option>
+                    @foreach (var obj in _mapService._sceneObjects)
+                    {
+                        <option value="@obj.Id"> @obj.RenderObjectType.ToString()</option>
+                    }
+                </select>
+            }
+    </div>
+
+    
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //TODO: fix memory leak by handling dispose
+            _mapService.SceneObjectsUpdated += (List<SceneObject> _) =>
+            {
+                InvokeAsync(StateHasChanged);    
+            };
+        }
+    }
+
+    private async Task setSelectedObject(ChangeEventArgs e)
+    {
+        Guid seletedId = new Guid(e.Value.ToString());
+        _mapService.setSelectedObject(seletedId);
+    }
+}
