@@ -9,7 +9,6 @@ namespace MotionEngine
 
         public void SetSceneObjects(List<MotionObject> motionObjects)
         {
-            Console.WriteLine("SetSceneObjects invoked");
             var newSceneObjects = motionObjects?.Select(x => x.ToSceneObject());
             SceneObjects = newSceneObjects?.ToList();
             SceneObjectsUpdated?.Invoke(SceneObjects);

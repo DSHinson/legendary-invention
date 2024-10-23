@@ -15,7 +15,7 @@ namespace ThreeView
     {
         private readonly IJSRuntime _jsRuntime;
         private Scene.Scene scene;
-
+        public event Action<Guid> selectedObjectChanged;
         public List<SceneObject> Objects => scene.Objects;
 
         public ThreeViewService(IJSRuntime jsRuntime)
@@ -49,13 +49,19 @@ namespace ThreeView
         public async Task UpdateScene()
         {
             await _jsRuntime.InvokeVoidAsync("reRenderScene", GetSceneJson());
-            
         }
 
         [JSInvokable("OnObjectClicked")]
         public void OnObjectClicked(string selectedID)
         {
-            Console.WriteLine($"Clicked object: {selectedID}");
+            if (selectedID is not null)
+            {
+                Console.WriteLine($"Clicked object: {selectedID}");
+
+                Guid seletedId = new Guid(selectedID);
+
+                selectedObjectChanged?.Invoke(seletedId);
+            }
         }
 
     }

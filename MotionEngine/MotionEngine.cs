@@ -32,7 +32,6 @@ namespace MotionEngine
                 var result = testDataSource.GetCurrent();
                 _testState.SetSceneObjects(result.Objects);
 
-                Console.WriteLine(result);
                 testDataSource.MoveNext();
 
                 await Task.Delay(1000 * 1, token);

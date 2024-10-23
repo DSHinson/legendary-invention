@@ -77,7 +77,7 @@ function initializeScene(sceneData) {
 
         // Create the mesh
         mesh = new THREE.Mesh(geometry, material);
-        meshIdMap.set(mesh.id, obj.Id);
+        mesh.userData.id = obj.Id;
         // Set position, rotation, and scale
         mesh.position.set(obj.Position[0], obj.Position[1], obj.Position[2]);
         mesh.rotation.set(obj.Rotation[0], obj.Rotation[1], obj.Rotation[2]);
@@ -120,9 +120,6 @@ function reRenderScene(updatedSceneData) {
     sceneObject?.Objects?.forEach(obj => {
         let geometry, material, mesh;
 
-        // Check object type (cube, sphere, etc.)
-
-        console.log(obj)
         // Later in the rendering logic
         const objectType = objectTypeMap[obj.RenderObjectType]; // Convert enum value to string
         switch (objectType) {
@@ -156,7 +153,7 @@ function reRenderScene(updatedSceneData) {
 
         // Create the mesh
         mesh = new THREE.Mesh(geometry, material);
-        meshIdMap.set(mesh.id, obj.Id);
+        mesh.userData.id = obj.Id;
         // Set position, rotation, and scale
         mesh.position.set(obj.Position[0], obj.Position[1], obj.Position[2]);
         mesh.rotation.set(obj.Rotation[0], obj.Rotation[1], obj.Rotation[2]);
@@ -243,7 +240,6 @@ function render() {
 
     // calculate objects intersecting the picking ray
     const intersects = raycaster.intersectObjects(scene.children);
-    console.table(intersects)
 
     renderer.render(scene, camera);
 
@@ -255,13 +251,15 @@ function onPointerMove(event) {
 
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    console.log(pointer)
 
 }
 function onMouseClick(event) {
+    // Get the bounding rectangle of the canvas
+    const canvasBounds = renderer.domElement.getBoundingClientRect();
+
     // Calculate mouse position in normalized device coordinates (-1 to +1)
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = ((event.clientX - canvasBounds.left) / canvasBounds.width) * 2 - 1;
+    mouse.y = -((event.clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
 
     // Update the raycaster with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
@@ -271,14 +269,15 @@ function onMouseClick(event) {
 
     if (intersects.length > 0) {
         // Get the first intersected object
-        selectedObject = intersects[0].object;
-        let serverId = meshIdMap.get(selectedObject.id);
+        const selectedObject = intersects[0].object;
+        console.log('Object clicked:', selectedObject);
         // Send the object details to C#
-        DotNetReference.invokeMethodAsync('OnObjectClicked', serverId).then(result => {
+        DotNetReference.invokeMethodAsync('OnObjectClicked', selectedObject.userData.id).then(result => {
             console.log('Object clicked:', result);
         }).catch(err => console.error(err));
     }
 }
+
 
 
 

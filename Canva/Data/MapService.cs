@@ -5,7 +5,7 @@ using ThreeView.Scene;
 
 namespace Canva.Data
 {
-    public class MapService
+    public class MapService : IDisposable
     {
         private readonly ThreeViewService _threeViewService;
         private readonly TestState _testState;
@@ -19,6 +19,8 @@ namespace Canva.Data
             _testState = testState ?? throw new ArgumentNullException(nameof(testState));
 
             _testState.SceneObjectsUpdated += UpdateThreeView;
+            _threeViewService.selectedObjectChanged += setSelectedObject;
+
         }
 
         private async void UpdateThreeView(List<SceneObject> sceneObjects)
@@ -54,6 +56,10 @@ namespace Canva.Data
             _selectedSceneObject = null;
         }
 
-
+        public void Dispose()
+        {
+            _testState.SceneObjectsUpdated -= UpdateThreeView;
+            _threeViewService.selectedObjectChanged -= setSelectedObject;
+        }
     }
 }
